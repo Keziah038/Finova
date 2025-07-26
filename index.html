@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finova - Personal Finance Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    /* Animated Background */
+    .intro-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1000;
+      pointer-events: none;
+    }
+    
+    .animated-bg {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, 
+        #3a0ca3 0%, 
+        #4361ee 25%, 
+        #4cc9f0 50%, 
+        #4361ee 75%, 
+        #3a0ca3 100%);
+      background-size: 400% 400%;
+      animation: gradientFlow 8s ease infinite;
+      z-index: -1;
+    }
+
+    @keyframes gradientFlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Enhanced Falling Money */
+    .falling-money {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .money-particle {
+      position: absolute;
+      font-size: 1.5rem;
+      animation: falling linear infinite;
+      opacity: 0;
+      z-index: 1;
+    }
+
+    @keyframes falling {
+      0% {
+        transform: translateY(-10vh) rotate(0deg) scale(0.5);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.8;
+      }
+      90% {
+        opacity: 0.8;
+      }
+      100% {
+        transform: translateY(110vh) rotate(360deg) scale(1);
+        opacity: 0;
+      }
+    }
+
+    /* Enhanced Logo Reveal */
+    .logo-reveal {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      opacity: 0;
+      animation: 
+        logoReveal 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.5s forwards,
+        float 3s ease-in-out infinite 1.5s;
+      z-index: 2;
+    }
+
+    @keyframes logoReveal {
+      from { opacity: 0; transform: translate(-50%, -40%); }
+      to { opacity: 1; transform: translate(-50%, -50%); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(-50%, -50%); }
+      50% { transform: translate(-50%, -55%); }
+    }
+
+    .logo-icon {
+      font-size: 5rem;
+      margin-bottom: 1rem;
+      display: inline-block;
+      animation: 
+        pulse 2s infinite,
+        spinIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.5s forwards;
+    }
+
+    @keyframes spinIn {
+      from { transform: rotate(-180deg) scale(0); }
+      to { transform: rotate(0) scale(1); }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    .logo-text {
+      font-size: 4rem;
+      font-weight: 800;
+      color: white;
+      margin: 0;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+
+    .tagline {
+      color: rgba(255,255,255,0.8);
+      font-size: 1.2rem;
+      margin-top: 0.5rem;
+    }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        visibility: hidden;
+      }
+    }
+
+    :root {
+      --primary: #4361ee; /* Vibrant blue */
+      --primary-dark: #3a0ca3; /* Deep purple-blue */
+      --secondary: #f72585; /* Energetic pink */
+      --accent: #4cc9f0; /* Bright cyan */
+      --success: #4ad66d; /* Fresh green */
+      --warning: #f8961e; /* Warm orange */
+      --danger: #ef233c; /* Alert red */
+      
+      --bg-light: #f8f9fa;
+      --bg-dark: #212529;
+      --card-light: #fff;
+      --card-dark: #2b2d42;
+      --text-light: #343a40;
+      --text-dark: #f8f9fa;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-light);
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .dark-mode {
+      background-color: var(--bg-dark);
+      color: var(--text-dark);
+    }
+
+    header {
+      background-color: var(--primary);
+      color: white;
+      padding: 1rem 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem 2rem;
+      background-color: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 50px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: white;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .logo-icon {
+      font-size: 2rem;
+      color: var(--accent);
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      padding: 0.8rem 0;
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      font-size: 1.1rem;
+    }
+
+    .nav-links a:hover {
+      color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 3px;
+      background-color: var(--accent);
+      transition: width 0.3s ease, left 0.3s ease;
+      border-radius: 3px;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+      left: 0;
+      transform: translateX(0);
+    }
+
+    .nav-links .login-btn {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      padding: 0.8rem 1.8rem;
+      border-radius: 50px;
+      margin-left: 1rem;
+      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+      transition: all 0.3s ease;
+      color: white;
+      border: none;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .nav-links .login-btn:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+    }
+
+    .theme-toggle {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      margin-left: 1rem;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .section {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding: 2rem 0;
+    }
+
+    .hero h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .hero h1 span {
+      color: var(--primary);
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      color: var(--text-light);
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .dark-mode .hero p {
+      color: var(--text-dark);
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .info-card {
+      background: var(--card-light);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      transition: transform 0.3s, box-shadow 0.3s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .dark-mode .info-card {
+      background: var(--card-dark);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+
+    .info-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    .dark-mode .info-card:hover {
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+
+    .info-card h2 {
+      font-size: 1.2rem;
+      margin: 1rem 0 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-card p {
+      color: #666;
+      font-size: 0.95rem;
+    }
+
+    .dark-mode .info-card p {
+      color: #ccc;
+    }
+
+    .login-form, .complaint-form {
+      max-width: 500px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: var(--card-light);
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+
+    .dark-mode .login-form, 
+    .dark-mode .complaint-form {
+      background: var(--card-dark);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+
+    .login-form h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: var(--primary);
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+
+    .dark-mode input,
+    .dark-mode select,
+    .dark-mode textarea {
+      background-color: var(--card-dark);
+      color: var(--text-dark);
+      border-color: #444;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: var(--primary-dark);
+    }
+
+    .toggle {
+      text-align: center;
+      margin-top: 1rem;
+      color: var(--primary);
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .message {
+      text-align: center;
+      margin-top: 1rem;
+      padding: 0.5rem;
+      border-radius: 5px;
+    }
+
+    .success {
+      background-color: rgba(46, 204, 113, 0.2);
+      color: var(--success);
+    }
+
+    .error {
+      background-color: rgba(231, 76, 60, 0.2);
+      color: var(--danger);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      nav {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+      }
+
+      .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .nav-links .login-btn {
+        margin-left: 0;
+        margin-top: 0.5rem;
+      }
+
+      .hero h1 {
+        font-size: 2rem;
+      }
+
+      .hero p {
+        font-size: 1rem;
+      }
+
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Country selector styles */
+    #otherCountry {
+      margin-top: 0.5rem;
+      display: none;
+    }
+
+    /* Form toggle animation */
+    #registerFields {
+      transition: max-height 0.3s ease;
+      overflow: hidden;
+      max-height: 0;
+    }
+
+    #registerFields.show {
+      max-height: 1000px;
+    }
+  </style>
+</head>
+<body>
+    <div class="intro-animation">
+    <div class="animated-bg"></div>
+    <div class="falling-money" id="fallingMoney"></div>
+    <div class="logo-reveal">
+      <div class="logo-icon">💰</div>
+      <h1 class="logo-text">Finova</h1>
+      <p class="tagline">Personal Finance Tracker</p>
+    </div>
+  </div>
+  <header>
+    <nav>
+      <div class="logo">
+        <span class="logo-icon">💰</span>
+        <span>Finova</span>
+      </div>
+      
+      <ul class="nav-links">
+        <li><a href="#home" class="nav-link active" onclick="showSection('home')">Home</a></li>
+        <li><a href="#about" class="nav-link" onclick="showSection('about')">About</a></li>
+        <li><a href="#services" class="nav-link" onclick="showSection('services')">Services</a></li>
+        <li><a href="#contact" class="nav-link" onclick="showSection('contact')">Contact</a></li>
+        <li><button class="login-btn" onclick="showSection('login')">Login</button></li>
+        <li><button class="theme-toggle" onclick="toggleTheme()">🌙</button></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Home Section -->
+    <section id="home" class="section active">
+      <div class="hero">
+        <h1>Welcome to <span>Finova</span></h1>
+        <p>Your comprehensive personal finance solution designed for clarity, control, and financial well-being.</p>
+      </div>
+      <div class="info-grid">
+        <div class="info-card">
+          <h2><span>📊</span> Track Everything</h2>
+          <p>Monitor all your income and expenses in one intuitive dashboard</p>
+        </div>
+        <div class="info-card">
+          <h2><span>🎯</span> Smart Budgets</h2>
+          <p>Create customized budgets and get alerts when you're overspending</p>
+        </div>
+        <div class="info-card">
+          <h2><span>📈</span> Visual Analytics</h2>
+          <p>Understand your spending patterns with beautiful, interactive charts</p>
+        </div>
+        <div class="info-card">
+          <h2><span>🔐</span> Bank-Level Security</h2>
+          <p>Your financial data is protected with industry-standard encryption</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section">
+      <div class="hero">
+        <h1>About <span>Finova</span></h1>
+        <p>We're on a mission to simplify personal finance for everyone</p>
+      </div>
+      <div class="info-grid">
+        <div class="info-card">
+          <h2><span>🌟</span> Our Vision</h2>
+          <p>Democratize financial management tools for all economic backgrounds</p>
+        </div>
+        <div class="info-card">
+          <h2><span>👥</span> Who We Serve</h2>
+          <p>Students, professionals, families, and small business owners</p>
+        </div>
+        <div class="info-card">
+          <h2><span>🛡️</span> Data Privacy</h2>
+          <p>We never sell your data - your privacy is our priority</p>
+        </div>
+        <div class="info-card">
+          <h2><span>💡</span> Smart Features</h2>
+          <p>AI-powered insights to help you make better financial decisions</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="section">
+      <div class="hero">
+        <h1>Our <span>Services</span></h1>
+        <p>Everything you need to take control of your financial life</p>
+      </div>
+      <div class="info-grid">
+        <div class="info-card">
+          <h2><span>💸</span> Expense Tracking</h2>
+          <p>Categorize and analyze every transaction with ease</p>
+        </div>
+        <div class="info-card">
+          <h2><span>📅</span> Budget Planning</h2>
+          <p>Set monthly limits and track your progress visually</p>
+        </div>
+        <div class="info-card">
+          <h2><span>📑</span> Detailed Reports</h2>
+          <p>Generate comprehensive reports for taxes or personal review</p>
+        </div>
+        <div class="info-card">
+          <h2><span>📤</span> Data Export</h2>
+          <p>Export your data in multiple formats for external analysis</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section">
+      <div class="hero">
+        <h1>Contact <span>Us</span></h1>
+        <p>We're here to help with any questions or feedback</p>
+      </div>
+      <div class="info-grid">
+        <div class="info-card">
+          <h2><span>📧</span> Email</h2>
+          <p>support@finova.com</p>
+        </div>
+        <div class="info-card">
+          <h2><span>📞</span> Phone</h2>
+          <p>+1 (800) 555-0199</p>
+        </div>
+        <div class="info-card">
+          <h2><span>💬</span> Live Chat</h2>
+          <p>Available 9am-5pm EST</p>
+        </div>
+        <div class="info-card">
+          <h2><span>❓</span> Knowledge Base</h2>
+          <p>Browse our extensive help articles</p>
+        </div>
+      </div>
+
+      <div class="complaint-form">
+        <h2>Submit Feedback</h2>
+        <form onsubmit="submitComplaint(event)">
+          <input type="text" placeholder="Your Name" required />
+          <input type="email" placeholder="Your Email" required />
+          <textarea placeholder="Your message..." rows="5" required></textarea>
+          <button type="submit">Send Message</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Login Section -->
+    <section id="login" class="section">
+      <div class="hero">
+        <h1><span>Login</span> / Register</h1>
+        <p>Access your financial dashboard or create a new account</p>
+      </div>
+      <div class="login-form">
+        <h2 id="formTitle">Login</h2>
+        <form id="authForm">
+          <div id="registerFields">
+            <input type="text" id="fullName" placeholder="Full Name" />
+            <input type="tel" id="phone" placeholder="Phone Number" />
+            <select id="country" onchange="handleCountryChange()">
+              <option value="">Select Country</option>
+              <option value="India">India</option>
+              <option value="United States">United States</option>
+              <option value="United Kingdom">United Kingdom</option>
+              <option value="Canada">Canada</option>
+              <option value="Australia">Australia</option>
+              <option value="Other">Other</option>
+            </select>
+            <input type="text" id="otherCountry" placeholder="Enter your country" style="display: none;" />
+            <input type="text" id="address" placeholder="Address" />
+            <select id="gender">
+              <option value="">Select Gender</option>
+              <option>Male</option>
+              <option>Female</option>
+              <option>Other</option>
+              <option>Prefer not to say</option>
+            </select>
+            <input type="date" id="dob" />
+            <input type="file" id="profilePic" accept="image/*" />
+          </div>
+          <input type="email" id="email" placeholder="Email" required />
+          <input type="password" id="password" placeholder="Password" required />
+          <input type="password" id="confirmPassword" placeholder="Confirm Password" />
+          <button type="button" onclick="handleAuth()" id="authBtn">Login</button>
+        </form>
+        <p class="toggle" onclick="toggleForm()" id="toggleText">Don't have an account? Register</p>
+        <div class="message" id="message"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Generate random money particles
+    function createMoneyParticles() {
+      const moneyTypes = ['💰', '💵', '💴', '💶', '💷', '💳', '📈'];
+      const container = document.getElementById('fallingMoney');
+      
+      // Clear existing (if any)
+      container.innerHTML = '';
+      
+      // Create 30 money particles
+      for (let i = 0; i < 30; i++) {
+        const money = document.createElement('div');
+        money.className = 'money-particle';
+        money.textContent = moneyTypes[Math.floor(Math.random() * moneyTypes.length)];
+        
+        // Random properties
+        const size = 0.5 + Math.random() * 1.5;
+        const left = Math.random() * 100;
+        const duration = 3 + Math.random() * 7;
+        const delay = Math.random() * 5;
+        
+        money.style.cssText = `
+          left: ${left}%;
+          font-size: ${size}rem;
+          animation-duration: ${duration}s;
+          animation-delay: ${delay}s;
+        `;
+        
+        container.appendChild(money);
+      }
+    }
+
+    // Initialize when DOM loads
+    document.addEventListener('DOMContentLoaded', () => {
+      createMoneyParticles();
+      
+      // Remove intro after animation completes
+      setTimeout(() => {
+        const intro = document.querySelector('.intro-animation');
+        if (intro) {
+          intro.style.opacity = 0;
+          setTimeout(() => intro.remove(), 500);
+        }
+      }, 3500);
+    });
+
+    // Theme management
+    let dark = false;
+
+    function toggleTheme() {
+      document.body.classList.toggle('dark-mode');
+      dark = !dark;
+      localStorage.setItem('darkMode', dark ? 'enabled' : 'disabled');
+      updateThemeIcon();
+    }
+
+    function updateThemeIcon() {
+      const themeButton = document.querySelector('.theme-toggle');
+      themeButton.textContent = dark ? '☀️' : '🌙';
+    }
+
+    // Check for saved theme preference
+    if (localStorage.getItem('darkMode') === 'enabled') {
+      document.body.classList.add('dark-mode');
+      dark = true;
+      updateThemeIcon();
+    }
+
+    // Section navigation
+    function showSection(sectionId) {
+      document.querySelectorAll('.section').forEach(sec => {
+        sec.classList.remove('active');
+      });
+      document.getElementById(sectionId).classList.add('active');
+      
+      // Update active nav link
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
+      });
+      document.querySelector(`.nav-link[href="#${sectionId}"]`).classList.add('active');
+      
+      // Scroll to top
+      window.scrollTo(0, 0);
+    }
+
+    // Login/Register toggle
+    let isLogin = true;
+
+    function toggleForm() {
+      isLogin = !isLogin;
+      const registerFields = document.getElementById('registerFields');
+      const confirmPassword = document.getElementById('confirmPassword');
+      
+      document.getElementById('formTitle').textContent = isLogin ? "Login" : "Register";
+      document.getElementById('authBtn').textContent = isLogin ? "Login" : "Register";
+      document.getElementById('toggleText').textContent = isLogin ? 
+        "Don't have an account? Register" : "Already have an account? Login";
+      
+      // Toggle fields
+      if (isLogin) {
+        registerFields.classList.remove('show');
+        confirmPassword.style.display = 'none';
+      } else {
+        registerFields.classList.add('show');
+        confirmPassword.style.display = 'block';
+      }
+      
+      document.getElementById('message').textContent = "";
+    }
+
+    // Initialize with login form
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('registerFields').classList.remove('show');
+      document.getElementById('confirmPassword').style.display = 'none';
+    });
+
+    function handleAuth() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const messageEl = document.getElementById('message');
+      
+      if (isLogin) {
+        // Login logic
+        const user = JSON.parse(localStorage.getItem("finovaUser"));
+        if (user && user.email === email && user.password === password) {
+          messageEl.textContent = "Login successful! Redirecting...";
+          messageEl.className = "message success";
+          
+          // Store user data for customer.html
+          localStorage.setItem('currentUser', JSON.stringify({
+            name: user.fullName,
+            email: user.email,
+            phone: user.phone,
+            currency: "₹"
+          }));
+          
+          // Flag that we just logged in
+          localStorage.setItem('justLoggedIn', 'true');
+          
+          setTimeout(() => {
+            window.location.href = "customer.html";
+          }, 1000);
+        } else {
+          messageEl.textContent = "Invalid credentials! Please try again.";
+          messageEl.className = "message error";
+        }
+      } else {
+        // Registration logic
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const fullName = document.getElementById('fullName').value;
+        
+        if (password !== confirmPassword) {
+          messageEl.textContent = "Passwords do not match!";
+          messageEl.className = "message error";
+          return;
+        }
+        
+        if (password.length < 6) {
+          messageEl.textContent = "Password must be at least 6 characters!";
+          messageEl.className = "message error";
+          return;
+        }
+        
+        const user = { 
+          fullName,
+          email, 
+          password,
+          phone: document.getElementById('phone').value,
+          country: document.getElementById('country').value === 'Other' ? 
+                   document.getElementById('otherCountry').value : 
+                   document.getElementById('country').value,
+          address: document.getElementById('address').value,
+          gender: document.getElementById('gender').value,
+          dob: document.getElementById('dob').value
+        };
+        
+        localStorage.setItem("finovaUser", JSON.stringify(user));
+        
+        // Store user data for customer.html
+        localStorage.setItem('currentUser', JSON.stringify({
+          name: user.fullName,
+          email: user.email,
+          phone: user.phone,
+          currency: "₹"
+        }));
+        
+        // Flag that we just logged in
+        localStorage.setItem('justLoggedIn', 'true');
+        
+        messageEl.textContent = "Registration successful! Redirecting...";
+        messageEl.className = "message success";
+        
+        setTimeout(() => {
+          window.location.href = "customer.html";
+        }, 1000);
+      }
+    }
+
+    // Country selector
+    function handleCountryChange() {
+      const countrySelect = document.getElementById("country");
+      const otherInput = document.getElementById("otherCountry");
+      
+      if (countrySelect.value === "Other") {
+        otherInput.style.display = "block";
+        otherInput.required = true;
+      } else {
+        otherInput.style.display = "none";
+        otherInput.required = false;
+      }
+    }
+
+    // Complaint form
+    function submitComplaint(event) {
+      event.preventDefault();
+      const messageEl = document.createElement('div');
+      messageEl.className = "message success";
+      messageEl.textContent = "Thank you for your feedback! We'll respond within 24 hours.";
+      
+      const form = event.target;
+      form.appendChild(messageEl);
+      form.reset();
+      
+      setTimeout(() => {
+        messageEl.remove();
+      }, 5000);
+    }
+  </script>
+</body>
+</html>
